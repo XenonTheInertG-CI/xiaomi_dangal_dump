@@ -1,0 +1,18 @@
+## dangal-user 8.1.0 OPM1.171019.011 1840 release-keys
+- Manufacturer: xiaomi
+- Platform: txlx
+- Codename: dangal
+- Brand: Xiaomi
+- Flavor: dangal-user
+- Release Version: 8.1.0
+- Id: OPM1.171019.011
+- Incremental: 1840
+- Tags: release-keys
+- CPU Abilist: armeabi-v7a,armeabi
+- A/B Device: false
+- Locale: en-US
+- Screen Density: undefined
+- Fingerprint: Xiaomi/dangal/dangal:8.1.0/OPM1.171019.011/1840:user/release-keys
+- OTA version: 
+- Branch: dangal-user-8.1.0-OPM1.171019.011-1840-release-keys
+- Repo: xiaomi_dangal_dump

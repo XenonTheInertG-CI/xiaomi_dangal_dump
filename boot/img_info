@@ -1,0 +1,15 @@
+kernel=kernel
+ramdisk=ramdisk
+second=second.img
+page_size=2048
+dtbo=dtbo.img
+kernel_size=9437184
+ramdisk_size=1398784
+second_size=102400
+base_addr=0x01078000
+kernel_offset=0x00008000
+ramdisk_offset=0xfff88000
+tags_offset=0xfef88100
+dtbo_offset=0x1d201487
+cmd_line='buildvariant=user'
+board=""
