@@ -1,0 +1,62 @@
+#!/system/bin/sh
+
+RESULT=
+
+__dump_audioin_register () {
+	RESULT=`dumpamlaudioreg --type in --index ${1}`
+	echo "${RESULT} || \"${2}\""
+}
+
+__dump_audioout_register () {
+	RESULT=`dumpamlaudioreg --type out --index ${1}`
+	echo "${RESULT} || \"${2}\""
+}
+
+_dump_audio_in () {
+	echo -e "\n===== AUDIO IN =====\n"
+	__dump_audioin_register 0x00 "AUDIN_SPDIF_MODE"
+	__dump_audioin_register 0x01 "AUDIN_SPDIF_FS_CLK_RLTN"
+	__dump_audioin_register 0x04 "AUDIN_SPDIF_MISC"
+	__dump_audioin_register 0x05 "AUDIN_SPDIF_NPCM_PCPD - pc[31:16] pd[15:00]"
+	__dump_audioin_register 0x10 "AUDIN_I2SIN_CTRL"
+	__dump_audioin_register 0x11 "AUDIN_SOURCE_SEL"
+	__dump_audioin_register 0x12 "AUDIN_DECODE_FORMAT"
+	__dump_audioin_register 0x13 "AUDIN_DECODE_CONTROL_STATUS"
+	__dump_audioin_register 0x14 "AUDIN_DECODE_CHANNEL_STATUS_A_0"
+	__dump_audioin_register 0x20 "AUDIN_FIFO0_START"
+	__dump_audioin_register 0x21 "AUDIN_FIFO0_END"
+	__dump_audioin_register 0x22 "AUDIN_FIFO0_PTR"
+	__dump_audioin_register 0x23 "AUDIN_FIFO0_INTR"
+	__dump_audioin_register 0x24 "AUDIN_FIFO0_RDPTR"
+	__dump_audioin_register 0x25 "AUDIN_FIFO0_CTRL"
+	__dump_audioin_register 0x26 "AUDIN_FIFO0_CTRL1"
+	__dump_audioin_register 0x27 "AUDIN_FIFO0_LVL0"
+	__dump_audioin_register 0x28 "AUDIN_FIFO0_LVL1"
+	__dump_audioin_register 0x29 "AUDIN_FIFO0_LVL2"
+	__dump_audioin_register 0x30 "AUDIN_FIFO0_REQID"
+	__dump_audioin_register 0x31 "AUDIN_FIFO0_WRAP"
+	__dump_audioin_register 0x33 "AUDIN_FIFO1_START"
+	__dump_audioin_register 0x34 "AUDIN_FIFO1_END"
+	__dump_audioin_register 0x35 "AUDIN_FIFO1_PTR"
+	__dump_audioin_register 0x36 "AUDIN_FIFO1_INTR"
+	__dump_audioin_register 0x37 "AUDIN_FIFO1_RDPTR"
+	__dump_audioin_register 0x38 "AUDIN_FIFO1_CTRL"
+	__dump_audioin_register 0x39 "AUDIN_FIFO1_CTRL1"
+	__dump_audioin_register 0x40 "AUDIN_FIFO1_LVL0"
+	__dump_audioin_register 0x41 "AUDIN_FIFO1_LVL1"
+	__dump_audioin_register 0x42 "AUDIN_FIFO1_LVL2"
+	__dump_audioin_register 0x43 "AUDIN_FIFO1_REQID"
+	__dump_audioin_register 0x44 "AUDIN_FIFO1_WRAP"
+	__dump_audioin_register 0x51 "AUDIN_INT_CTRL"
+	__dump_audioin_register 0x80 "AUDOUT_CTRL"
+}
+
+_dump_audio_out () {
+	echo -e "\n===== AUDIO OUT =====\n"
+	__dump_audioout_register 0x04 "AIU_958_MISC"
+	__dump_audioout_register 0x0a "AIU_958_CTRL"
+	__dump_audioout_register 0x0c "AIU_I2S_MUTE_SWAP"
+}
+
+_dump_audio_in
+_dump_audio_out

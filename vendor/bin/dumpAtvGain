@@ -1,0 +1,21 @@
+#!/system/bin/sh
+
+get_atv_gain_shift () {
+	echo audio_gain_shift > /sys/class/aml_atvdemod/atvdemod_debug
+	GAIN_SHIFT=`cat /sys/kernel/debug/aml_atvdemod/audio_gain_shift`
+}
+
+get_atv_gain_lpr () {
+	echo audio_gain_lpr > /sys/class/aml_atvdemod/atvdemod_debug
+	GAIN_LPR=`cat /sys/kernel/debug/aml_atvdemod/audio_gain_lpr`
+}
+
+# main () {
+while true
+do
+	get_atv_gain_shift
+	get_atv_gain_lpr
+	echo -e "audio_gain_shift: ${GAIN_SHIFT}, audio_gain_lpr: ${GAIN_LPR}"
+	sleep 1
+done
+# }

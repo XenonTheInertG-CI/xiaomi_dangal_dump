@@ -1,0 +1,81 @@
+#!/system/bin/sh
+
+PROP_AUDIO_AFTER_PCM_RD="media.audiohal.indump"
+PROP_AUDIO_AFTER_EFFECT="media.audiohal.outdump"
+PROP_AUDIO_BEFORE_PCMWR="media.audiohal.outdump"
+
+FILE_AUDIO_AFTER_PCM_RD="/data/audio_in.pcm"
+FILE_AUDIO_AFTER_EFFECT="/data/audio_spk.pcm"
+FILE_AUDIO_BEFORE_PCMWR="/data/pcm_write.pcm"
+
+# prepare for permission of file write
+environment_initial () {
+	setenforce 0 && chmod 777 /data
+	rm -rf ${FILE_AUDIO_AFTER_PCM_RD} && rm -rf ${FILE_AUDIO_AFTER_EFFECT} && rm -rf ${FILE_AUDIO_BEFORE_PCMWR}
+}
+
+# start to dump
+_dump_audio_in_data_start () {
+	setprop ${PROP_AUDIO_AFTER_PCM_RD} 1
+}
+
+_dump_audio_out_data_start () {
+	setprop ${PROP_AUDIO_AFTER_EFFECT} 1
+}
+
+dump_all_start () {
+	_dump_audio_in_data_start && _dump_audio_out_data_start
+}
+
+# stop dump
+_dump_audio_in_data_end () {
+	setprop ${PROP_AUDIO_AFTER_PCM_RD} 0
+}
+
+_dump_audio_out_data_end () {
+	setprop ${PROP_AUDIO_AFTER_EFFECT} 0
+}
+
+dump_all_end () {
+	_dump_audio_in_data_end && _dump_audio_out_data_end
+}
+
+# wait for a while
+waitforseconds () {
+	count=0
+	while [ $count -le ${1} ]; do
+	    count=$((count + 1))
+		echo -e "dumping ${count}s..."
+		sleep 1
+	done
+}
+
+# main () {
+environment_initial
+
+echo -e "\t[1] dump all"
+echo -e "\t[2] dump source in data only"
+echo -e "\t[3] dump output data(before knl) only"
+
+read option
+
+if [ "$option" == 1 ]; then
+	dump_all_start             && waitforseconds 15 && dump_all_end
+	echo -e "please check the file:"
+	echo -e "\t${FILE_AUDIO_AFTER_PCM_RD}"
+	echo -e "\t${FILE_AUDIO_AFTER_EFFECT}"
+	echo -e "\t${FILE_AUDIO_BEFORE_PCMWR}"
+elif [ "$option" == 2 ]; then
+	_dump_audio_in_data_start  && waitforseconds 15 && _dump_audio_in_data_end
+	echo -e "please check the file:"
+	echo -e "\t${FILE_AUDIO_AFTER_PCM_RD}"
+elif [ "$option" == 3 ]; then
+	_dump_audio_out_data_start && waitforseconds 15 && _dump_audio_out_data_end
+	echo -e "please check the file:"
+	echo -e "\t${FILE_AUDIO_AFTER_EFFECT}"
+	echo -e "\t${FILE_AUDIO_BEFORE_PCMWR}"
+else
+	exit 1
+fi
+
+# }

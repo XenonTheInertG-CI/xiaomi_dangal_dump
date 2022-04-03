@@ -1,0 +1,10 @@
+media.omx.osd_maxwidth=1280
+media.omx.osd_maxheight=720
+
+dalvik.vm.jit.codecachesize=0
+dalvik.vm.heapstartsize=8m
+dalvik.vm.heapgrowthlimit=80m
+dalvik.vm.heapsize=384m
+dalvik.vm.heaptargetutilization=0.75
+dalvik.vm.heapminfree=512k
+dalvik.vm.heapmaxfree=8m

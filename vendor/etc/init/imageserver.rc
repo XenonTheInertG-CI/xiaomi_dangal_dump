@@ -1,0 +1,6 @@
+on init
+    start imageserver
+
+service imageserver /vendor/bin/imageserver
+    user root
+    group system

@@ -1,0 +1,4 @@
+service droidvold /vendor/bin/droidvold
+    class core
+    ioprio be 2
+    writepid /dev/cpuset/foreground/tasks

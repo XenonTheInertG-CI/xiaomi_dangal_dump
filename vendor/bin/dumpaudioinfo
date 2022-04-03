@@ -1,0 +1,91 @@
+#!/system/bin/sh
+
+#normal
+LOG_ROOT="/data/log/audio"
+ALSA_LOG_PATH="${LOG_ROOT}/alsa_status.log"
+AMLOGIC_LOG_PATH="${LOG_ROOT}/aml_pll_and_dsp_reg.log"
+PROGRESS_LOG_PATH="${LOG_ROOT}/current_progress_thread_info.log"
+DUMPSYS_AUDIO_PATH="${LOG_ROOT}/dumpsys_audio_service.log"
+DUMPSYS_AF_PATH="${LOG_ROOT}/dumpsys_audio_flinger.log"
+DUMPSYS_AP_PATH="${LOG_ROOT}/dumpsys_audio_policy.log"
+DUMPSYS_HC_PATH="${LOG_ROOT}/dumpsys_hdmi_control.log"
+#for atmos dsp
+IS_ATMOS=`getprop ro.boot.product.type`
+ATMOS_DSP_PATH="${LOG_ROOT}/atmos_dsp.log"
+#codec
+CODEC_DUMP_PATH="${LOG_ROOT}/codec_regs.log"
+
+_environment_initial () {
+	echo -e "\n===== environment initial for audio offline log =====\n"
+	mkdir -p ${LOG_ROOT}
+}
+
+_dump_amlogic_special_log () {
+	echo -e "\n===== regs of audio dsp =====\n"        >  ${AMLOGIC_LOG_PATH}
+	dumpaudio                                          >> ${AMLOGIC_LOG_PATH}
+	echo -e "\n===== info of pll clock =====\n"        >> ${AMLOGIC_LOG_PATH}
+	cat /sys/kernel/debug/aml_clkmsr/clkmsr            >> ${AMLOGIC_LOG_PATH}
+}
+
+_dump_android_audio_svr () {
+	dumpsys audio                                      >  ${DUMPSYS_AUDIO_PATH}
+	dumpsys media.audio_flinger                        >  ${DUMPSYS_AF_PATH}
+	dumpsys media.audio_policy                         >  ${DUMPSYS_AP_PATH}
+	dumpsys hdmi_control                               >  ${DUMPSYS_HC_PATH}
+}
+
+_dump_progress_thread_info () {
+	echo -e '\n-- progress --\n'                       >  ${PROGRESS_LOG_PATH}
+	ps                                                 >> ${PROGRESS_LOG_PATH}
+	echo -e '\n-- thread   --\n'                       >> ${PROGRESS_LOG_PATH}
+	ps -t                                              >> ${PROGRESS_LOG_PATH}
+}
+
+_dump_alsa_status () {
+	echo ""                                            >  ${ALSA_LOG_PATH}
+	for i in 0 1
+	do
+		echo -e "\n===== time: ${i}s =====\n"          >> ${ALSA_LOG_PATH}
+		echo -e '\n-- card 0 pcm 0 --\n'               >> ${ALSA_LOG_PATH}
+		cat /proc/asound/card0/pcm0p/sub0/status       >> ${ALSA_LOG_PATH}
+		cat /proc/asound/card0/pcm0c/sub0/status       >> ${ALSA_LOG_PATH}
+		echo -e '\n-- card 0 pcm 1 --\n'               >> ${ALSA_LOG_PATH}
+		cat /proc/asound/card0/pcm1p/sub0/status       >> ${ALSA_LOG_PATH}
+		cat /proc/asound/card0/pcm1c/sub0/status       >> ${ALSA_LOG_PATH}
+		sleep 1
+	done
+}
+
+_dump_dsp_log () {
+	if test ${IS_ATMOS} == "atmos";then
+		cat /proc/xiaomi_devlog/cs498xx                >> ${ATMOS_DSP_PATH}
+	fi
+}
+
+_dump_codec_regs () {
+	if test ${IS_ATMOS} == "atmos";then
+		echo -e '\n-- MAIN(L/R) --\n'                   > ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/MAIN/dump        >> ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/MAIN/error       >> ${CODEC_DUMP_PATH}
+		echo -e '\n-- CENTER --\n'                     >> ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/CENTER/dump      >> ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/CENTER/error     >> ${CODEC_DUMP_PATH}
+		echo -e '\n-- UPSPK(Top L/R) --\n'             >> ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/UPSPK/dump       >> ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/UPSPK/error      >> ${CODEC_DUMP_PATH}
+	else
+		echo -e '\n-- L/R --\n'                         > ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/AMP/dump         >> ${CODEC_DUMP_PATH}
+		cat /sys/class/xiaomi-speaker/AMP/error        >> ${CODEC_DUMP_PATH}
+	fi
+}
+
+#main() {
+_environment_initial
+_dump_amlogic_special_log
+_dump_android_audio_svr
+_dump_progress_thread_info
+_dump_alsa_status
+_dump_dsp_log
+_dump_codec_regs
+# }

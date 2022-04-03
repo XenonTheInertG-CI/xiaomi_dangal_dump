@@ -1,0 +1,10 @@
+ro.sf.lcd_density=213
+
+# Low memory platform
+ro.config.low_ram=true
+
+ro.media.maxmem=419430400
+
+#720P UI,  1280 * 720 *4 * 5 = 18M, 5 frame is enough
+ro.hwui.texture_cache_size=18.0f
+ro.hwui.layer_cache_size=15.0f

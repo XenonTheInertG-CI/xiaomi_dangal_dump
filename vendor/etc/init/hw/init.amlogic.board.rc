@@ -1,0 +1,122 @@
+import /vendor/etc/init/hw/init.amlogic.usb.rc
+
+on early-init
+    write /sys/class/leds/sysled/trigger timer
+    loglevel 3
+
+    mount configfs configfs /sys/kernel/config
+    #mount usbfs none /proc/bus/usb
+
+    insmod /vendor/lib/si2159_fe.ko
+
+on init
+    export USB_STORAGE_DIR /storage
+    export ISO_STORAGE /mnt/loop
+    mkdir /persist 0775 media system
+    mkdir /storage/loop 0700 root root
+    mkdir /mnt/loop 0700 media_rw media_rw
+
+    mkdir /mnt/smb  0775 root system
+    mount tmpfs tmpfs /mnt/smb mode=0755,gid=1015
+    chown system sdcard_rw /mnt/smb
+
+on post-fs-data
+    insmod /vendor/lib/mali.ko
+    insmod /vendor/lib/modules/cfg80211.ko
+    insmod /vendor/lib/dovi.ko
+    insmod /vendor/lib/modules/aml_hardware_dmx.ko
+
+    insmod /vendor/lib/modules/tfat.ko
+    insmod /vendor/lib/modules/tntfs.ko
+    insmod /vendor/lib/modules/texfat.ko
+
+    restorecon_recursive /tvinfo
+
+#for bluetooth
+    chmod 0775 /tvinfo
+    chown bluetooth system /tvinfo
+    acccopy /vendor/etc/bluetooth/wake_on_ble.conf /tvinfo/wake_on_ble.conf
+    chown bluetooth system /tvinfo/wake_on_ble.conf
+    chmod 0660 /tvinfo/wake_on_ble.conf
+    acccopy /vendor/etc/bluetooth/wake_on_ble.conf /tvinfo/RemoteControllerBtMac
+    chown bluetooth system /tvinfo/RemoteControllerBtMac
+    chmod 0660 /tvinfo/RemoteControllerBtMac
+    # realtek bluetooth
+    mkdir /data/misc/bluedroid 0770 bluetooth net_bt_stack
+    # bluetooth LPM
+    chown bluetooth net_bt_stack /proc/bluetooth/sleep/lpm
+    chown bluetooth net_bt_stack /proc/bluetooth/sleep/btwrite
+    # rfkill
+    chmod 0660 /sys/class/rfkill/rfkill0/state
+    chmod 0660 /sys/class/rfkill/rfkill0/type
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
+    # bluetooth MAC address programming
+    chown bluetooth net_bt_stack "/data/misc/bluetooth/bdaddr"
+	
+    acccopy /vendor/etc/zgpriv_protected.dat /data/zgpriv_protected.dat
+    chown system system /data/zgpriv_protected.dat
+    chmod 0644 /data/zgpriv_protected.dat
+    acccopy /vendor/etc/bgroupcert.dat /data/bgroupcert.dat
+    chown system system /data/bgroupcert.dat
+    chmod 0644 /data/bgroupcert.dat
+   
+    mkdir /data/panic 0775 system system
+
+#ATV's audio gain
+    chown system audio /sys/class/aml_atvdemod/atvdemod_debug
+    chown system audio /sys/kernel/debug/aml_atvdemod/audio_gain_shift
+    chown system audio /sys/kernel/debug/aml_atvdemod/audio_gain_lpr
+    chmod 0666 /sys/class/aml_atvdemod/atvdemod_debug
+    chmod 0666 /sys/kernel/debug/aml_atvdemod/audio_gain_shift
+    chmod 0666 /sys/kernel/debug/aml_atvdemod/audio_gain_lpr
+
+on boot
+    setprop ro.radio.noril true
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
+    write /sys/class/freq_limit/limit 0
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_dflt_freq 1416000
+    write /proc/sys/kernel/sysrq 1
+
+#HDMI IN
+    chmod 666 /sys/class/sii9233a/port
+    chmod 666 /sys/class/sii9233a/enable
+    chmod 666 /sys/module/tvin_vdin/parameters/max_buf_num
+
+    # chmod 0666 /dev/ge2d
+    chmod 666 /dev/cec
+    chmod 666 /dev/dvb0.frontend0
+    chmod 666 /dev/v4l2_frontend
+    chmod 666 /dev/vbi
+    chmod 0666 /dev/opteearmtz00
+    chmod 0666 /dev/tee0
+    mount debugfs debugfs /sys/kernel/debug mode=755
+
+service smbd /system/bin/smbd
+    class main
+    user root
+    group system
+    disabled
+    seclabel u:r:smbd:s0
+
+#copy offline log
+service copylog /vendor/bin/copy_offline_log.sh
+    user root
+    group log net_bt_stack bluetooth system sdcard_rw
+    disabled
+    oneshot
+    seclabel u:r:copylog:s0
+on property:vold.debug.offlinelog=copylog && property:ro.boot.selinux=permissive
+    start copylog
+
+on property:init.svc.bootanim=stopped
+    write /sys/class/leds/sysled/trigger none
+
+on property:ro.boot.console_enable=1
+    start console
+
+on property:sys.boot_completed=1
+   start post-fs-data
+
+on property:sys.boot_completed=1 && property:ro.boot.reboot_mode=kernel_panic 
+   savepanicinfo 30

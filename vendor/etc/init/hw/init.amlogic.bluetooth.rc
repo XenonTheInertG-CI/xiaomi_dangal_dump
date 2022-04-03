@@ -1,0 +1,17 @@
+service loadrtk /system/bin/insmod /vendor/lib/modules/rtk_btusb.ko
+    #user bluetooth
+    #class main
+    #group bluetooth net_bt_stack
+    disabled
+    oneshot
+service rertk /system/bin/rmmod /vendor/lib/modules/rtk_btusb.ko
+    #user bluetooth
+    #class main
+    #group bluetooth net_bt_stack
+    disabled
+    oneshot
+
+on property:bluetooth.rtk.btdriver=true
+    start loadrtk
+on property:bluetooth.rtk.btdriver=false
+    start rertk
