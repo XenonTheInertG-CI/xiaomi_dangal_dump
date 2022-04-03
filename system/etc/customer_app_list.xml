@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<!--sample code: 
+<Document> 
+    <items region="ina">
+        <item file_name="videoplayer-indonesia" isUninstall = "false"/>
+    </items>
+    <items region="in">
+        <item file_name="videoplayer-india" isUninstall = "false"/>
+        <item file_name="sensy" isUninstall = "false"/>
+        <item file_name="sensy_res" isUninstall = "false"/>
+    </items>
+</Document>  
+-->
+<Document> 
+    <items region="ina">
+    </items>
+    <items region="in">
+        <item file_name="sensy" isUninstall = "false"/>
+        <item file_name="sensy_res" isUninstall = "false"/>
+    </items>
+</Document>  
